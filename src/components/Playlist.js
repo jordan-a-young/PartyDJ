@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import SpotifyWebApi from 'spotify-web-api-js';
-import { Button, Card, CardTitle, CardBody, Col, ListGroup, ListGroupItem } from 'reactstrap';
+import { Button, Card, CardTitle, CardText, CardBody, Col, ListGroup, ListGroupItem } from 'reactstrap';
 
 
 const spotifyApi = new SpotifyWebApi();
@@ -17,7 +17,6 @@ class Playlist extends Component {
     },
     playlists: [],
     tracks: [],
-    playlist_id: "7z07rKPVKxzKVLEX4iiAVl",
     selected_playlist: '',
     track: ["spotify:track:4uQ7wYsuL0DryknoDc11Hk"]
   }
@@ -46,8 +45,28 @@ class Playlist extends Component {
 
   handleGetTracks = async playlist => {
     const { user_id } = this.state;
-    const response = await spotifyApi.getPlaylistTracks(user_id, playlist);
-    this.setState({tracks: response.items})
+    var tracks = [];
+    const size = playlist.tracks.total;
+    var remaining = size;
+    const limit = 100;
+    var offset = 0;
+
+    var options = {
+      limit,
+      offset
+    }
+    
+    while (remaining > 0) {
+      const response = await spotifyApi.getPlaylistTracks(user_id, playlist.id, options);
+      tracks = tracks.concat(response.items);
+      offset += limit;
+      remaining -= limit;
+      options.offset = offset;
+    }
+
+    console.log(tracks);
+
+    this.setState({ tracks });
   }
   
   handleAddTrack = async () => {
@@ -56,12 +75,12 @@ class Playlist extends Component {
   }
   
   handleSelectPlaylist = selected_playlist => {
-    this.handleGetTracks(selected_playlist.id);
+    this.handleGetTracks(selected_playlist);
     this.setState({ selected_playlist});
   }
 
   render() {
-    console.log("Playlist", this.state);
+    console.log("Playlist state", this.state);
     const { playlists, selected_playlist, tracks } = this.state;
     return (
       <Fragment>
@@ -95,6 +114,7 @@ class Playlist extends Component {
           <Card>
             <CardBody>
               <CardTitle>{selected_playlist ? selected_playlist.name : 'Select a playlist'}</CardTitle>
+              <CardText>Playlist Size: {selected_playlist ? selected_playlist.tracks.total : 0}</CardText>
               <ListGroup>
                 {
                   tracks.map((track, id) => {
