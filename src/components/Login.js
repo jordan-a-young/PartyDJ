@@ -39,11 +39,7 @@ class Login extends Component {
   }
 
   render() {
-    return (
-      <div>
-        <Button color="primary" onClick={this.handleLogin} className="btn btn-primary">Login to Spotify</Button>
-      </div>
-    );
+    return <Button color="primary" className="btn btn-primary">Login to Spotify</Button>
   }
 }
 
