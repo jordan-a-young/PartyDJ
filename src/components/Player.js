@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import { Button, Card, CardBody, CardTitle, Col, Row } from 'reactstrap';
 import SpotifyWebApi from 'spotify-web-api-js';
-import Login from './Login';
 
-const login = new Login();
 const spotifyApi = new SpotifyWebApi();
 
 class Player extends Component {
@@ -16,16 +14,9 @@ class Player extends Component {
     nowPlaying: { 
       name: 'Not Checked', 
       albumArt: '',
-      isPlaying: false 
+      isPlaying: false,
+      isActive: false,
     }
-  }
-
-  componentDidMount() {
-    console.log('Player mounted with State: ', this.state);
-  }
-
-  getToken = () => {
-    return login.getToken();
   }
 
   handlePlay = () => {
@@ -52,23 +43,26 @@ class Player extends Component {
 
   getPlaybackState = async () => {
     const response = await spotifyApi.getMyCurrentPlaybackState();
+    console.log(response)
     this.setState({
       options: {device_id: response.device.id ? response.device.id : null},
       nowPlaying: { 
         name: response.item.name, 
         albumArt: response.item.album.images[0].url,
-        isPlaying: response.is_playing
+        isPlaying: response.is_playing,
+        isActive: response.device.is_active
       }
     })  
   }
 
   render() {
-    const { isPlaying } = this.state.nowPlaying;
-    spotifyApi.setAccessToken(this.getToken());
+    const { isActive } = this.state.nowPlaying;
+    const { getToken } = this.props;
+    spotifyApi.setAccessToken(getToken());
     
     return (
       <Row>
-        { isPlaying && (
+        { isActive && (
           <Col xs="6">
             <Card>
               <CardBody>

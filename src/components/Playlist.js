@@ -1,10 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import SpotifyWebApi from 'spotify-web-api-js';
 import { Button, Card, CardTitle, CardText, CardBody, Col, ListGroup, ListGroupItem, Row } from 'reactstrap';
-import Login from './Login';
 
 const spotifyApi = new SpotifyWebApi();
-const login = new Login();
 
 class Playlist extends Component {
   state = {
@@ -24,11 +22,6 @@ class Playlist extends Component {
 
   componentDidMount() {
     this.handleGetUserPlaylists()
-    console.log('Playlist mounted with State: ', this.state);
-  }
-
-  getToken = () => {
-    return login.getToken();
   }
 
   handleGetMe = async () => {
@@ -70,8 +63,6 @@ class Playlist extends Component {
       options.offset = offset;
     }
 
-    console.log(tracks);
-
     this.setState({ tracks });
   }
   
@@ -87,7 +78,8 @@ class Playlist extends Component {
 
   render() {
     const { playlists, selected_playlist, tracks } = this.state;
-    spotifyApi.setAccessToken(this.getToken());
+    const { getToken } = this.props;
+    spotifyApi.setAccessToken(getToken());
 
     return (
       <Fragment>

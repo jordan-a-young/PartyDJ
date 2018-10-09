@@ -5,25 +5,20 @@ import Login from './components/Login';
 import Player from './components/Player';
 import Playlist from './components/Playlist';
 
-const login = new Login();
-
 class App extends Component {
   state = {
     token: '',
     loggedIn: false,
   }
-
-  componentDidMount() {
-    console.log('App mounted with State: ', this.state);
-  }
-
+  
   handleLogin = () => {
     return this.setState(prevState => 
       ({ loggedIn: !prevState.loggedIn })
-    )
-  }
-
-  getToken = () => { 
+      )
+    }
+    
+    getToken = () => { 
+    const login = new Login();
     return login.getToken();
   }
 
@@ -40,8 +35,8 @@ class App extends Component {
           {
             loggedIn && (
               <Fragment>
-                <Player />
-                <Playlist />
+                <Player getToken={this.getToken} />
+                <Playlist getToken={this.getToken} />
               </Fragment>
             )
           }
