@@ -6,8 +6,8 @@ const spotifyApi = new SpotifyWebApi();
 
 class Player extends Component {
   state = {
-    spotifyApi: null,
     user: 'jordan_young5',
+    token: '',
     options: {
       device_id: ''
     },
@@ -19,31 +19,75 @@ class Player extends Component {
     }
   }
 
-  handlePlay = () => {
-    spotifyApi.play(this.state.options);
-    this.setState({isPlaying: true});
+  componentDidMount() {
+    this.setToken();
   }
 
+  validate = () => {
+    const { device_id } = this.state.options;
+    const valid = device_id ? true : false;
+
+    return valid;
+  }
+
+  setToken = () => {
+    const token = this.props.getToken();
+    spotifyApi.setAccessToken(token);
+    return this.setState({token});
+  }
+
+  handlePlay = () => {
+    const valid = this.validate();
+    
+    if (valid) {
+      var nowPlaying = {...this.state.nowPlaying};
+      spotifyApi.play(this.state.options);
+      nowPlaying.isPlaying = true;
+      return this.setState({nowPlaying});
+    }
+    
+    console.log('There was an error');
+  }
+  
   handlePause = () => {
-    spotifyApi.pause(this.state.options);
-    this.setState({isPlaying: false});
+    const valid = this.validate();
+    
+    if (valid) {
+      var nowPlaying = {...this.state.nowPlaying};
+      nowPlaying.isPlaying = false;
+      spotifyApi.pause(this.state.options);
+      return this.setState({nowPlaying});
+    }
+
+    console.log('There was an error');
   }
 
   handleSkip = () => {
-    spotifyApi.skipToNext(this.state.options);
+    const valid = this.validate();
+    
+    valid ? spotifyApi.skipToNext(this.state.options) : console.log('There was an error');
   }
 
   handlePrevious = () => {
-    spotifyApi.skipToPrevious(this.state.options);
+    const valid = this.validate();
+    
+    valid ? spotifyApi.skipToPrevious(this.state.options) : console.log('There was an error');
   }
-
+  
   handleSeekToStart = () => {
-    spotifyApi.seek(0, this.state.options);
+    const valid = this.validate();
+    
+    valid ? spotifyApi.seek(0, this.state.options) : console.log('There was an error');
   }
 
   getPlaybackState = async () => {
     const response = await spotifyApi.getMyCurrentPlaybackState();
-    console.log(response)
+    
+    if(!response) {
+      console.log('There was an error getting playback');
+      return;
+    }
+
     this.setState({
       options: {device_id: response.device.id ? response.device.id : null},
       nowPlaying: { 
@@ -56,9 +100,9 @@ class Player extends Component {
   }
 
   render() {
-    const { isActive } = this.state.nowPlaying;
-    const { getToken } = this.props;
-    spotifyApi.setAccessToken(getToken());
+    const { isActive, isPlaying } = this.state.nowPlaying;
+
+    console.log(this.state)
     
     return (
       <Row>
@@ -67,7 +111,9 @@ class Player extends Component {
             <Card>
               <CardBody>
                 <CardTitle>
-                  Now Playing: {this.state.nowPlaying.name}
+                  { 
+                    isPlaying ? `Now Playing: ${this.state.nowPlaying.name}` : `Playback Paused`
+                  }
                 </CardTitle>  
                 <img src={this.state.nowPlaying.albumArt} alt="album art" style={{ height: 150}} />
               </CardBody>
