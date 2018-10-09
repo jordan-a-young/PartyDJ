@@ -1,9 +1,10 @@
 import React, { Component, Fragment } from 'react';
 import SpotifyWebApi from 'spotify-web-api-js';
-import { Button, Card, CardTitle, CardText, CardBody, Col, ListGroup, ListGroupItem } from 'reactstrap';
-
+import { Button, Card, CardTitle, CardText, CardBody, Col, ListGroup, ListGroupItem, Row } from 'reactstrap';
+import Login from './Login';
 
 const spotifyApi = new SpotifyWebApi();
+const login = new Login();
 
 class Playlist extends Component {
   state = {
@@ -23,6 +24,11 @@ class Playlist extends Component {
 
   componentDidMount() {
     this.handleGetUserPlaylists()
+    console.log('Playlist mounted with State: ', this.state);
+  }
+
+  getToken = () => {
+    return login.getToken();
   }
 
   handleGetMe = async () => {
@@ -43,7 +49,7 @@ class Playlist extends Component {
     spotifyApi.createPlaylist(this.state.user_id, this.state.options);
   }
 
-  handleGetTracks = async playlist => {
+  handleGetPlaylistTracks = async playlist => {
     const { user_id } = this.state;
     var tracks = [];
     const size = playlist.tracks.total;
@@ -75,56 +81,61 @@ class Playlist extends Component {
   }
   
   handleSelectPlaylist = selected_playlist => {
-    this.handleGetTracks(selected_playlist);
+    this.handleGetPlaylistTracks(selected_playlist);
     this.setState({ selected_playlist});
   }
 
   render() {
-    console.log("Playlist state", this.state);
     const { playlists, selected_playlist, tracks } = this.state;
+    spotifyApi.setAccessToken(this.getToken());
+
     return (
       <Fragment>
-        <Col>
-          <Card>
-            <CardBody>
-              <CardTitle>Playlist Management</CardTitle>
-              <Button color="primary" onClick={this.handleGetMe} className="m-2">Me</Button>
-              <Button color="primary" onClick={this.handleCreatePlaylist} className="m-2">Create Playlist</Button>
-              <Button color="primary" onClick={this.handleGetUserPlaylists} className="m-2">Get User Playlists</Button>
-              <Button color="primary" onClick={this.handleGetTracks} className="m-2">Get Tracks</Button>
-              <Button color="primary" onClick={this.handleAddTrack} className="m-2">Add Track</Button>
-            </CardBody>
-          </Card>
-        </Col>
-        <Col>
-          <Card>
-            <CardBody>
-              <CardTitle>User Playlists</CardTitle>
-              <ListGroup>
-                {
-                  playlists.map((playlist, id) => {
-                    return <ListGroupItem key={id} tag="button" action onClick={() => this.handleSelectPlaylist(playlist)}>{playlist.name}</ListGroupItem>
-                  })
-                }
-              </ListGroup>
-            </CardBody>
-          </Card>
+        <Row className="w-100">
+          <Col xs="12">
+            <Card>
+              <CardBody>
+                <CardTitle>Playlist Management</CardTitle>
+                <Button color="primary" onClick={this.handleGetMe} className="m-2">Me</Button>
+                <Button color="primary" onClick={this.handleCreatePlaylist} className="m-2">Create Playlist</Button>
+                <Button color="primary" onClick={this.handleGetUserPlaylists} className="m-2">Get User Playlists</Button>
+                <Button color="primary" onClick={this.handleGetPlaylistTracks} className="m-2">Get Tracks</Button>
+                {/* <Button color="primary" onClick={this.handleAddTrack} className="m-2">Add Track</Button> */}
+              </CardBody>
+            </Card>
           </Col>
-          <Col>
-          <Card>
-            <CardBody>
-              <CardTitle>{selected_playlist ? selected_playlist.name : 'Select a playlist'}</CardTitle>
-              <CardText>Playlist Size: {selected_playlist ? selected_playlist.tracks.total : 0}</CardText>
-              <ListGroup>
-                {
-                  tracks.map((track, id) => {
-                    return <ListGroupItem key={id}>{track.track.name}</ListGroupItem>
-                  })
-                }
-              </ListGroup>            
-            </CardBody>
-          </Card>
-        </Col>
+        </Row>
+        <Row className="w-100">
+          <Col xs="6">
+            <Card>
+              <CardBody>
+                <CardTitle>User Playlists</CardTitle>
+                <ListGroup>
+                  {
+                    playlists.map((playlist, id) => {
+                      return <ListGroupItem key={id} tag="button" action onClick={() => this.handleSelectPlaylist(playlist)}>{playlist.name}</ListGroupItem>
+                    })
+                  }
+                </ListGroup>
+              </CardBody>
+            </Card>
+          </Col>
+          <Col xs="6">
+            <Card>
+              <CardBody>
+                <CardTitle>{selected_playlist ? selected_playlist.name : 'Select a playlist'}</CardTitle>
+                <CardText>Playlist Size: {selected_playlist ? selected_playlist.tracks.total : 0}</CardText>
+                <ListGroup>
+                  {
+                    tracks.map((track, id) => {
+                      return <ListGroupItem key={id}>{track.track.name}</ListGroupItem>
+                    })
+                  }
+                </ListGroup>            
+              </CardBody>
+            </Card>
+          </Col>
+        </Row>
       </Fragment>
     )
   }
