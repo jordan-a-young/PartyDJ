@@ -22,6 +22,7 @@ class Player extends Component {
 
   componentDidMount() {
     this.setToken();
+    this.getPlaybackState();
   }
 
   validate = () => {
@@ -103,21 +104,25 @@ class Player extends Component {
     const { nowPlaying } = this.state;
 
     return (
-      <Row>
-        { nowPlaying.isActive && (
-          <Col xs="6">
-            <Card>
-              <CardBody>
-                <CardTitle>
-                  {
+      <Row className="w-100 my-3">
+        <Col xs="6">
+          <Card>
+            <CardBody>
+              <CardTitle>
+                {
+                  nowPlaying.isActive ? (
                     nowPlaying.isPlaying ? `Now Playing: ${nowPlaying.name}` : 'Playback Paused'
-                  }
-                </CardTitle>
+                  ) : (
+                    'There is not an active device'
+                  )
+                }
+              </CardTitle>
+              { nowPlaying.isActive &&
                 <img src={nowPlaying.albumArt} alt="album art" style={{ height: 150 }} />
-              </CardBody>
-            </Card>
-          </Col>
-        )}
+              }
+            </CardBody>
+          </Card>
+        </Col>
         <Col xs="6">
           <Card>
             <CardBody>

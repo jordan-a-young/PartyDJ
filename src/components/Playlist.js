@@ -9,7 +9,7 @@ const spotifyApi = new SpotifyWebApi();
 
 class Playlist extends Component {
   state = {
-    userId: 'jordan_young5',
+    userId: '',
     options: {
       name: 'Party DJ',
       description: 'this is a playlist for use with the Party DJ web app',
@@ -29,6 +29,7 @@ class Playlist extends Component {
   handleGetMe = async () => {
     const response = await spotifyApi.getMe();
     console.log(response);
+    this.setState({ userId: response.id });
   }
 
   handleGetUser = () => {
@@ -42,12 +43,11 @@ class Playlist extends Component {
   }
 
   handleCreatePlaylist = () => {
-    const { userId, options } = this.state;
-    spotifyApi.createPlaylist(userId, options);
+    const { options } = this.state;
+    spotifyApi.createPlaylist(options);
   }
 
   handleGetPlaylistTracks = async (playlist) => {
-    const { userId } = this.state;
     let tracks = [];
     const size = playlist.tracks.total;
     let remaining = size;
@@ -60,7 +60,7 @@ class Playlist extends Component {
     };
 
     while (remaining > 0) {
-      const response = await spotifyApi.getPlaylistTracks(userId, playlist.id, options);
+      const response = await spotifyApi.getPlaylistTracks(playlist.id, options);
       tracks = tracks.concat(response.items);
       offset += limit;
       remaining -= limit;
@@ -71,8 +71,8 @@ class Playlist extends Component {
   }
 
   handleAddTrack = async () => {
-    const { userId, selectedPlaylist, track } = this.state;
-    await spotifyApi.addTracksToPlaylist(userId, selectedPlaylist, track);
+    const { selectedPlaylist, track } = this.state;
+    await spotifyApi.addTracksToPlaylist(selectedPlaylist, track);
   }
 
   handleSelectPlaylist = (selectedPlaylist) => {
@@ -87,7 +87,7 @@ class Playlist extends Component {
 
     return (
       <Fragment>
-        <Row className="w-100">
+        <Row className="w-100 my-3">
           <Col xs="12">
             <Card>
               <CardBody>
