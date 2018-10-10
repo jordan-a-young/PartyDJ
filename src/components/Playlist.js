@@ -1,62 +1,66 @@
 import React, { Component, Fragment } from 'react';
 import SpotifyWebApi from 'spotify-web-api-js';
-import { Button, Card, CardTitle, CardText, CardBody, Col, ListGroup, ListGroupItem, Row } from 'reactstrap';
+import {
+  Button, Card, CardTitle, CardText, CardBody, Col, ListGroup, ListGroupItem, Row,
+} from 'reactstrap';
+import PropTypes from 'prop-types';
 
 const spotifyApi = new SpotifyWebApi();
 
 class Playlist extends Component {
   state = {
-    data: null,
-    user_id: "jordan_young5",
+    userId: 'jordan_young5',
     options: {
-      name: "Party DJ",
-      description: "this is a playlist for use with the Party DJ web app",
+      name: 'Party DJ',
+      description: 'this is a playlist for use with the Party DJ web app',
       public: false,
-      collaborative: true
+      collaborative: true,
     },
     playlists: [],
     tracks: [],
-    selected_playlist: '',
-    track: ["spotify:track:4uQ7wYsuL0DryknoDc11Hk"]
+    selectedPlaylist: '',
+    track: ['spotify:track:4uQ7wYsuL0DryknoDc11Hk'],
   }
 
   componentDidMount() {
-    this.handleGetUserPlaylists()
+    this.handleGetUserPlaylists();
   }
 
   handleGetMe = async () => {
     const response = await spotifyApi.getMe();
     console.log(response);
   }
-  
+
   handleGetUser = () => {
-    spotifyApi.getUser(this.state.user_id);
+    const { userId } = this.state;
+    spotifyApi.getUser(userId);
   }
 
   handleGetUserPlaylists = async () => {
     const response = await spotifyApi.getUserPlaylists();
-    this.setState({playlists: response.items});
+    this.setState({ playlists: response.items });
   }
 
   handleCreatePlaylist = () => {
-    spotifyApi.createPlaylist(this.state.user_id, this.state.options);
+    const { userId, options } = this.state;
+    spotifyApi.createPlaylist(userId, options);
   }
 
-  handleGetPlaylistTracks = async playlist => {
-    const { user_id } = this.state;
-    var tracks = [];
+  handleGetPlaylistTracks = async (playlist) => {
+    const { userId } = this.state;
+    let tracks = [];
     const size = playlist.tracks.total;
-    var remaining = size;
+    let remaining = size;
     const limit = 100;
-    var offset = 0;
+    let offset = 0;
 
-    var options = {
+    const options = {
       limit,
-      offset
-    }
-    
+      offset,
+    };
+
     while (remaining > 0) {
-      const response = await spotifyApi.getPlaylistTracks(user_id, playlist.id, options);
+      const response = await spotifyApi.getPlaylistTracks(userId, playlist.id, options);
       tracks = tracks.concat(response.items);
       offset += limit;
       remaining -= limit;
@@ -65,19 +69,19 @@ class Playlist extends Component {
 
     this.setState({ tracks });
   }
-  
+
   handleAddTrack = async () => {
-    const { user_id, selected_playlist, track } = this.state;
-    await spotifyApi.addTracksToPlaylist(user_id, selected_playlist, track);
+    const { userId, selectedPlaylist, track } = this.state;
+    await spotifyApi.addTracksToPlaylist(userId, selectedPlaylist, track);
   }
-  
-  handleSelectPlaylist = selected_playlist => {
-    this.handleGetPlaylistTracks(selected_playlist);
-    this.setState({ selected_playlist});
+
+  handleSelectPlaylist = (selectedPlaylist) => {
+    this.handleGetPlaylistTracks(selectedPlaylist);
+    this.setState({ selectedPlaylist });
   }
 
   render() {
-    const { playlists, selected_playlist, tracks } = this.state;
+    const { playlists, selectedPlaylist, tracks } = this.state;
     const { getToken } = this.props;
     spotifyApi.setAccessToken(getToken());
 
@@ -115,22 +119,28 @@ class Playlist extends Component {
           <Col xs="6">
             <Card>
               <CardBody>
-                <CardTitle>{selected_playlist ? selected_playlist.name : 'Select a playlist'}</CardTitle>
-                <CardText>Playlist Size: {selected_playlist ? selected_playlist.tracks.total : 0}</CardText>
+                <CardTitle>{selectedPlaylist ? selectedPlaylist.name : 'Select a playlist'}</CardTitle>
+                <CardText>
+                  Playlist Size: {selectedPlaylist ? selectedPlaylist.tracks.total : 0}
+                </CardText>
                 <ListGroup>
                   {
                     tracks.map((track, id) => {
                       return <ListGroupItem key={id}>{track.track.name}</ListGroupItem>
                     })
                   }
-                </ListGroup>            
+                </ListGroup>
               </CardBody>
             </Card>
           </Col>
         </Row>
       </Fragment>
-    )
+    );
   }
 }
+
+Playlist.propTypes = {
+  getToken: PropTypes.func,
+};
 
 export default Playlist;

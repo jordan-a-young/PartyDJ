@@ -5,8 +5,8 @@ class Login {
     this.redirectUri = 'http://localhost:3000/';
     this.scopes = ['user-top-read'];
   }
-  
-  getToken = () => {
+
+  getToken() {
     const params = this.getHashParams();
     const token = params.access_token;
 
@@ -16,13 +16,14 @@ class Login {
     
     window.location = `${this.authEndpoint}?client_id=${this.clientId}&redirect_uri=${this.redirectUri}&scope=${this.scopes.join('%20')}&response_type=token&show_dialog=true`;
   }
-  
+
   getHashParams = () => {
-    var hashParams = {};
-    var e, r = /([^&;=]+)=?([^&;]*)/g,
-        q = window.location.hash.substring(1);
-    e = r.exec(q)
-    
+    let hashParams = {};
+    let e;
+    const r = /([^&;=]+)=?([^&;]*)/g;
+    const q = window.location.hash.substring(1);
+    e = r.exec(q);
+
     while (e) {
       hashParams[e[1]] = decodeURIComponent(e[2]);
       e = r.exec(q);
