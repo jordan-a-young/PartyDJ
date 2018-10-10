@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Button, Card, CardBody, CardTitle, Col, Row } from 'reactstrap';
 import SpotifyWebApi from 'spotify-web-api-js';
+import PropTypes from 'prop-types';
 
 const spotifyApi = new SpotifyWebApi();
 
@@ -45,7 +46,6 @@ class Player extends Component {
       nowPlaying.isPlaying = true;
       return this.setState({nowPlaying});
     }
-    
     console.log('There was an error');
   }
   
@@ -147,6 +147,10 @@ class Player extends Component {
       </Row>
     )
   }
+}
+
+Player.propTypes = {
+  getToken: PropTypes.func,
 }
 
 export default Player;
