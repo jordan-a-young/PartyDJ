@@ -95,7 +95,7 @@ class Playlist extends Component {
                 <Button color="primary" onClick={this.handleGetMe} className="m-2">Me</Button>
                 <Button color="primary" onClick={this.handleCreatePlaylist} className="m-2">Create Playlist</Button>
                 <Button color="primary" onClick={this.handleGetUserPlaylists} className="m-2">Get User Playlists</Button>
-                <Button color="primary" onClick={this.handleGetPlaylistTracks} className="m-2">Get Tracks</Button>
+                {/* <Button color="primary" onClick={this.handleGetPlaylistTracks} className="m-2">Get Tracks</Button> */}
                 {/* <Button color="primary" onClick={this.handleAddTrack} className="m-2">Add Track</Button> */}
               </CardBody>
             </Card>

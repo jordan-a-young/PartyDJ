@@ -1,49 +1,14 @@
-import React, { Component, Fragment } from 'react';
-import { Button, Container } from 'reactstrap';
+import React, { Fragment } from 'react';
 import Header from './components/Header';
-import Login from './components/Login';
-import Player from './components/Player';
-import Playlist from './components/Playlist';
+import Main from './components/Main';
 
-class App extends Component {
-  state = {
-    token: '',
-    loggedIn: false,
-  }
-  
-  handleLogin = () => {
-    return this.setState(prevState => 
-      ({ loggedIn: !prevState.loggedIn })
-      )
-    }
-    
-    getToken = () => { 
-    const login = new Login();
-    return login.getToken();
-  }
-
-  render() {
-    const { loggedIn } = this.state;
-
-    if (loggedIn) this.getToken()
-
-    return (
-      <Fragment>
-        <Header />
-        <Container>
-          <Button color="primary" onClick={this.handleLogin}>{loggedIn ? 'Logout' : 'Login'}</Button>
-          {
-            loggedIn && (
-              <Fragment>
-                <Player getToken={this.getToken} />
-                <Playlist getToken={this.getToken} />
-              </Fragment>
-            )
-          }
-        </Container>
-      </Fragment>
-    );
-  }
-}
+const App = () => {
+	return (
+		<Fragment>
+			<Header />
+			<Main />
+		</Fragment>
+	)
+};
 
 export default App;
