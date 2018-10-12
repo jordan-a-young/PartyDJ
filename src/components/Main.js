@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import { Button, Container } from 'reactstrap';
-import Login from '../../Services/Login';
-import Player from '../Player';
-import Playlist from '../Playlist';
+import Login from '../Services/Login';
+import Player from './Player';
+import Playlist from './Playlist';
 
 class Main extends Component {
 	state = {

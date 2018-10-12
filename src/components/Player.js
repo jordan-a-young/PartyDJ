@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import {
 	Button, Card, CardBody, CardTitle, Col, Row,
 } from 'reactstrap';
@@ -17,12 +17,14 @@ class Player extends Component {
 			albumArt: '',
 			isPlaying: false,
 			isActive: false,
+			volume: 0,
 		},
+		deviceList: [],
 	}
 
 	componentDidMount() {
 		this.setToken();
-		this.getPlaybackState();
+		this.handleGetPlaybackState();
 	}
 
 	validate = () => {
@@ -81,7 +83,34 @@ class Player extends Component {
 		valid ? spotifyApi.seek(0, this.state.options) : console.log('There was an error');
 	}
 
-	getPlaybackState = async () => {
+	handleGetDevices = async () => {
+		const response = await spotifyApi.getMyDevices();
+
+		if (!response) {
+			console.log('There was an error getting devices')
+			return;
+		}
+
+		console.log(response)
+		this.setState({ deviceList: response.devices })
+	}
+
+	handleSetVolume = volumeChange => {
+		const { nowPlaying, options } = this.state;
+		let newVolume = nowPlaying.volume + volumeChange;
+
+		if (nowPlaying.volume+volumeChange < 0) {
+			newVolume = 0;
+		} else if (nowPlaying.volume+volumeChange > 100) {
+			newVolume = 100;
+		}
+
+		spotifyApi.setVolume(newVolume, options);
+		nowPlaying.volume = newVolume;
+		this.setState({ nowPlaying });
+	}
+
+	handleGetPlaybackState = async () => {
 		const response = await spotifyApi.getMyCurrentPlaybackState();
 
 		if (!response) {
@@ -96,6 +125,7 @@ class Player extends Component {
 				albumArt: response.item.album.images[0].url,
 				isPlaying: response.is_playing,
 				isActive: response.device.is_active,
+				volume: response.device.volume_percent,
 			},
 		});
 	}
@@ -117,9 +147,13 @@ class Player extends Component {
 									)
 								}
 							</CardTitle>
-							{ nowPlaying.isActive &&
-								<img src={nowPlaying.albumArt} alt="album art" style={{ height: 150 }} />
-							}
+							{ nowPlaying.isActive && (
+								<Fragment>
+									<img src={nowPlaying.albumArt} className="m-1" alt="album art" style={{ height: 150 }} />
+									<Button color="primary" className="m-1" onClick={() => this.handleSetVolume(-10)}>Volume -10</Button>
+									<Button color="primary" className="m-1" onClick={() => this.handleSetVolume(10)}>Volume +10</Button>
+								</Fragment>
+							)}
 						</CardBody>
 					</Card>
 				</Col>
@@ -127,7 +161,8 @@ class Player extends Component {
 					<Card>
 						<CardBody>
 							<CardTitle>Player Management</CardTitle>
-							<Button color="primary" className="m-1" onClick={this.getPlaybackState}>Get Playback</Button>
+							<Button color="primary" className="m-1" onClick={this.handleGetPlaybackState}>Get Playback</Button>
+							<Button color="primary" className="m-1" onClick={this.handleGetDevices}>Get Devices</Button>
 							<Button color="primary" className="m-1" onClick={this.handleSeekToStart}>Start Song Over</Button>
 							<Button color="primary" className="m-1" onClick={this.handlePrevious}>Previous</Button>
 							<Button color="primary" className="m-1" onClick={this.handlePlay}>Play</Button>

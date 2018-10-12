@@ -3,7 +3,7 @@ class Login {
     this.authEndpoint = 'https://accounts.spotify.com/authorize';
     this.clientId = '86b3966826b949b984fae87920c8d591';
     this.redirectUri = 'http://localhost:3000/';
-    this.scopes = ['user-top-read'];
+    this.scopes = ['user-top-read', 'user-read-playback-state', 'user-modify-playback-state'];
   }
 
   getToken() {
